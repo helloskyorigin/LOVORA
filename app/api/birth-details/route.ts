@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
       savedAt: Date.now(),
     };
     const token = sealBirthDraft(draft);
-    const response = NextResponse.json({ ok: true, next: "/birth-details/saved" }, { headers });
+    const response = NextResponse.json({ ok: true, next: "/relationship" }, { headers });
     response.cookies.set(BIRTH_COOKIE, token, {
       httpOnly: true, secure: process.env.NODE_ENV === "production",
       sameSite: "lax", path: "/", maxAge: BIRTH_TTL_SECONDS,

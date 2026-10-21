@@ -45,11 +45,11 @@ function SavedBirthContent() {
                 </p>
                 <p style={{ color: "#e9bf95", fontSize: 13, lineHeight: 1.7 }}>
                   {lang === "hi"
-                    ? "जन्म विवरण सुरक्षित हैं। अगला चरण रिश्तों के बारे में दो छोटे सवाल और वास्तविक कुंडली गणना का होगा। अभी कोई ज्योतिषीय परिणाम नहीं बनाया गया है।"
-                    : "Birth details are securely saved. The next phase will add two relationship questions and a real chart-calculation engine. No astrological result has been generated yet."}
+                    ? "जन्म विवरण सुरक्षित हैं। अब रिश्तों के बारे में दो सवाल चुनें और फिर कुंडली के वास्तविक ग्रह-आधारित संकेत देखें। अभी कोई ज्योतिषीय परिणाम नहीं बनाया गया है।"
+                    : "Birth details are securely saved. Continue to the relationship questions, then calculate a real chart-based free insight. No astrology result has been generated yet."}
                 </p>
-                <Link className="birth-submit" href={"/birth-details?lang=" + lang} style={{ marginTop: 25 }}>
-                  {lang === "hi" ? "विवरण बदलें" : "Change birth details"} <span>↗</span>
+                <Link className="birth-submit" href={"/relationship?lang=" + lang} style={{ marginTop: 25 }}>
+                  {lang === "hi" ? "अपने रिश्ते के बारे में बताएँ" : "Continue to relationship questions"} <span>↗</span>
                 </Link>
               </div> :
               <div>

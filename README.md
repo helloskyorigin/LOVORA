@@ -56,3 +56,17 @@ To validate locally:
 npm run typecheck
 npm run build
 ```
+
+## Phase 3 — Relationship questions + real free astrology insight
+
+- Birth Details now continues directly to `/relationship`.
+- `/relationship`: 2 quick questions, EN/HI, no partner details, server-side validation.
+- `POST /api/relationship`: saves choices inside the authenticated encrypted birth session.
+- `/insight`: actual Prokerala planet-position calculation, with an evidence-backed Venus in zodiac sign insight; no mock predictions.
+- `POST /api/insight`: secure OAuth client-credential exchange, Lahiri ayanamsa, IANA historical time conversion, response validation, token caching, duplicate-request coalescing, no AI expense.
+- Configure `PROKERALA_CLIENT_ID` and `PROKERALA_CLIENT_SECRET` in `.env.local` or deployment settings; **no chart is generated without them**.
+- Exact birth time required for current free preview. Unknown-time births receive an honest correction prompt.
+- Provider credit cost: Planet Position Basic English ~30 credits per fresh chart. Result is cached in the encrypted session.
+- Current in-memory 5/hour/IP limiter is for MVP development only. Before public launch, enable a shared rate limiter and durable credit budget to prevent serverless retries and proxy abuse.
+- The full seven-section reading and ₹299 checkout are NOT BUILT. Preview does not claim love-vs-arranged verdicts.
+- Real provider API calls not tested without account credentials; verify response schema and historical timezone edge cases with a funded test account.
