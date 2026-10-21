@@ -70,3 +70,7 @@ npm run build
 - Current in-memory 5/hour/IP limiter is for MVP development only. Before public launch, enable a shared rate limiter and durable credit budget to prevent serverless retries and proxy abuse.
 - The full seven-section reading and ₹299 checkout are NOT BUILT. Preview does not claim love-vs-arranged verdicts.
 - Real provider API calls not tested without account credentials; verify response schema and historical timezone edge cases with a funded test account.
+
+## Automated checks
+
+GitHub Actions CI runs TypeScript typechecking and a Next.js production build on pushes and pull requests. No external API credentials required for compiling the app. Real Prokerala response verification still requires appropriately authorized test credentials.
