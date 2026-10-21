@@ -32,7 +32,7 @@ export async function POST(req:NextRequest){
     const report=await generateAndStoreReport(draft);
     const response=NextResponse.json({ok:true,next:"/report",id:report.id},{headers:noStore});
     response.cookies.set(REPORT_COOKIE,sealAccess({reportId:report.id,orderId:"DEV-ONLY",isDev:true}),{
-      httpOnly:true,sameSite:"lax",secure:process.env.NODE_ENV==="production",maxAge:ACCESS_TTL,path:"/",
+      httpOnly:true,sameSite:"lax",secure:false,maxAge:ACCESS_TTL,path:"/",
     });
     return response;
   }catch(err){
