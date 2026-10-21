@@ -13,7 +13,9 @@ export async function POST(request:NextRequest){
  const origin=request.headers.get("origin");
  if(origin&&origin!==new URL(request.url).origin)return NextResponse.json({ok:false,error:"Invalid origin."},{status:403,headers});
  const id=parseCheckoutOrder(request.cookies.get(CHECKOUT_COOKIE)?.value);
- if(!id)return NextResponse.json({ok:false,error:"This checkout belongs to a different browser session."},{status:401,headers});
+ let requested:string|null=null;
+ try {const raw=await request.json() as {orderId?:unknown};requested=typeof raw.orderId==="string"?raw.orderId:null;}catch{}
+ if(!id || id!==requested)return NextResponse.json({ok:false,error:"This checkout belongs to a different browser session."},{status:401,headers});
  try{
   let order=await readOrder(id);
   if(!order)return NextResponse.json({ok:false,error:"Order not found or expired."},{status:404,headers});

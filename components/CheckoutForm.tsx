@@ -19,7 +19,7 @@ export function CheckoutForm({lang}:{lang:"en"|"hi"}){
  return <form onSubmit={pay} className="lovora-checkout">
   <p className="lovora-checkout__eyebrow">✦ {lang==="hi"?"एक बार का भुगतान":"ONE-TIME PURCHASE"}</p>
   <div className="lovora-checkout__price">₹299 <span>{lang==="hi"?"सिर्फ़ एक बार · सब्सक्रिप्शन नहीं":"once · no subscription"}</span></div>
-  <label htmlFor="lovora-pay-email">{lang==="hi"?"आपकी रसीद और रिपोर्ट के लिए ईमेल":"Email for your receipt and purchased report"}</label>
+  <label htmlFor="lovora-pay-email">{lang==="hi"?"आपकी रसीद और सहायता के लिए ईमेल":"Email for your payment receipt and support"}</label>
   <input id="lovora-pay-email" type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" required autoComplete="email" maxLength={254}/>
   <label className="lovora-checkout__ack">
    <input type="checkbox" checked={ack} onChange={e=>setAck(e.target.checked)} required/>

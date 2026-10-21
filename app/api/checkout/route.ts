@@ -11,6 +11,7 @@ export const dynamic="force-dynamic";
 export const maxDuration=30;
 const headers={"Cache-Control":"no-store"};
 
+
 function publicOrigin(request:NextRequest){
  const base=process.env.LOVORA_BASE_URL;
  if(!base)throw new Error("APP_ORIGIN_NOT_CONFIGURED");
@@ -21,6 +22,7 @@ function publicOrigin(request:NextRequest){
  return url.origin;
 }
 export async function POST(request:NextRequest){
+ if(process.env.LOVORA_PAYMENTS_ENABLED!=="true")return NextResponse.json({ok:false,error:"Payments are not enabled yet. Merchant approval is required."},{status:503,headers});
  const origin=request.headers.get("origin");
  if(origin&&origin!==new URL(request.url).origin)return NextResponse.json({ok:false,error:"Invalid request origin."},{status:403,headers});
  if(!request.headers.get("content-type")?.includes("application/json"))return NextResponse.json({ok:false,error:"Expected JSON."},{status:415,headers});
