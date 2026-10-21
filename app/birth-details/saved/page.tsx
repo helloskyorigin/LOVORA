@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import "../birth-details.css";
 
 type Saved = { ok: boolean; draft?: { firstName: string; dateOfBirth: string; birthTime: string | null; timeKnown: boolean; place: { name: string; region: string; country: string; timezone: string }; savedAt: number } };
 
-export default function SavedBirthPage() {
+function SavedBirthContent() {
   const lang = useSearchParams().get("lang") === "hi" ? "hi" : "en";
   const [data, setData] = useState<Saved | null>(null);
   const [loading, setLoading] = useState(true);
@@ -61,4 +61,8 @@ export default function SavedBirthPage() {
       </div>
     </main>
   );
+}
+
+export default function SavedBirthPage() {
+  return <Suspense fallback={<main className="birth-page"><div className="birth-layout"><p>Opening your saved details...</p></div></main>}><SavedBirthContent /></Suspense>;
 }

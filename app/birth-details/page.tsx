@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { FormEvent, Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import "./birth-details.css";
@@ -45,7 +45,7 @@ const messages = {
   },
 } as const;
 
-export default function BirthDetailsPage() {
+function BirthDetailsForm() {
   const router = useRouter();
   const params = useSearchParams();
   const [language, setLanguage] = useState<Lang>(params.get("lang") === "hi" ? "hi" : "en");
@@ -195,4 +195,8 @@ export default function BirthDetailsPage() {
       <footer className="birth-footer">{c.footer}</footer>
     </main>
   );
+}
+
+export default function BirthDetailsPage() {
+  return <Suspense fallback={<main className="birth-page"><div className="birth-layout"><p>Preparing your birth story...</p></div></main>}><BirthDetailsForm /></Suspense>;
 }

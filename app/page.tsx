@@ -160,7 +160,7 @@ export default function Home() {
           <h1><span>{c.title1}</span><span className="hero-h1-second">{c.title2}</span></h1>
           <p className="hero-tagline">{c.tagline}</p>
           <p className="hero-description">{c.description}</p>
-          <a href="#preview" className="cta primary">{c.primary}<span aria-hidden="true">↗</span></a>
+          <a href={`/birth-details?lang=${lang}`} className="cta primary">{c.primary}<span aria-hidden="true">↗</span></a>
           <div className="hero-notes"><span>✧ {c.free}</span><i/><span>{c.account}</span><i/><span>{c.priceHint}</span></div>
         </div>
         <div className="hero-art"><Orrery/><span className="orbital-caption">LOVE <i/> FATE <i/> CONNECTION</span></div>
@@ -202,7 +202,7 @@ export default function Home() {
     <section className="section pricing-section" id="pricing"><div className="wrap pricing-layout">
       <div className="pricing-intro" data-reveal><span className="eyebrow"><b>✦</b>{c.priceKicker}</span><h2>{c.priceTitle}</h2><p>{c.priceDescription}</p></div>
       <div className="pricing-card" data-reveal><div className="pricing-star">✦</div><div className="pricing-amount">₹299</div><p className="pricing-once">{c.priceSub}</p><div className="pricing-divider"/><ul>{c.priceFeatures.map(t=><li key={t}><span>✓</span>{t}</li>)}</ul>
-        <a className="cta primary pricing-cta" href="#preview">{c.priceButton}<span aria-hidden="true">↗</span></a><p className="pricing-note">{c.priceFooter}</p>
+        <a className="cta primary pricing-cta" href={`/birth-details?lang=${lang}`}>{c.priceButton}<span aria-hidden="true">↗</span></a><p className="pricing-note">{c.priceFooter}</p>
       </div>
     </div></section>
 
