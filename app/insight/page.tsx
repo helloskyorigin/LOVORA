@@ -3,6 +3,7 @@ import { Suspense, useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import "../journey.css";
+import {CheckoutForm} from "@/components/CheckoutForm";
 
 type Insight = {planet:"Venus";sign:string;descriptionEn:string;descriptionHi:string;source:string;ayanamsa:string};
 type Lang="en"|"hi";
@@ -84,7 +85,7 @@ function InsightContent(){
               <h3>{c.premium}</h3><p>{c.premiumDesc}</p>
               <ul>{c.chapters.map(x=><li key={x}><span>✧</span>{x}</li>)}</ul>
               <p className="journey__configured">{c.checkout}</p>
-              <p>{c.notYet}</p>
+              <CheckoutForm lang={lang}/>
               <Link href="/report/sample" style={{color:"#f3cf9f",fontSize:12,textDecoration:"underline",textUnderlineOffset:4}}>{lang==="hi"?"पूरी रिपोर्ट का सैंपल देखें ↗":"Preview the seven-chapter sample report ↗"}</Link>
             </section>
           </>
