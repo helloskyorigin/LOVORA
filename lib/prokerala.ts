@@ -123,3 +123,41 @@ export async function calculateFreeInsight(draft: JourneyDraft, cacheKey: string
   pending.set(cacheKey, run);
   try { return await run; } finally { pending.delete(cacheKey); }
 }
+
+
+// Paid-report input: one required planet-position call, plus optional cross-checks.
+// Optional endpoints can fail independently; missing data is explicitly disclosed.
+export async function fetchPaidChartData(draft: JourneyDraft): Promise<import("./report/types").RawChartData> {
+  if (!draft.timeKnown || !draft.birthTime) throw new Error("BIRTH_TIME_REQUIRED");
+  const token = await accessToken();
+  const original = await fetchPositions(draft, token);
+  if (original.status !== "ok" || !Array.isArray(original.data?.planet_position)) throw new Error("UNSUPPORTED_CHART_RESPONSE");
+  const datetime = resolveBirthUTC(draft.dateOfBirth, draft.birthTime, draft.place.timezone).toISOString();
+  const base = {
+    ayanamsa: "1", coordinates: draft.place.latitude + "," + draft.place.longitude,
+    datetime, la: "en",
+  };
+  async function optionalCall(endpoint: "divisional-planet-position"|"dasha-periods", extra:Record<string,string>) {
+    const url = new URL("https://api.prokerala.com/v2/astrology/" + endpoint);
+    Object.entries({...base,...extra}).forEach(([key,val])=>url.searchParams.set(key,val));
+    const response=await fetch(url.toString(),{
+      headers:{Authorization:"Bearer "+token,Accept:"application/json"},
+      cache:"no-store",signal:AbortSignal.timeout(14000),
+    });
+    if (!response.ok) throw new Error("ASTROLOGY_OPTIONAL_UNAVAILABLE");
+    return await response.json() as {status?:string;data?:unknown};
+  }
+  const [d9,dasha]=await Promise.allSettled([
+    optionalCall("divisional-planet-position",{chart_type:"navamsa"}),
+    optionalCall("dasha-periods",{year_length:"1"}),
+  ]);
+  const navamsaData=d9.status==="fulfilled"&&d9.value.status==="ok" ? d9.value.data : null;
+  const dashaData=dasha.status==="fulfilled"&&dasha.value.status==="ok" ? {data:dasha.value.data} : null;
+  if(d9.status==="rejected")console.warn("LOVORA optional Navamsa not available");
+  if(dasha.status==="rejected")console.warn("LOVORA optional Dasha not available");
+  return {
+    planets: original.data.planet_position,
+    navamsa: navamsaData && typeof navamsaData==="object" ? navamsaData as import("./report/types").RawChartData["navamsa"] : null,
+    dasha: dashaData,
+  };
+}
