@@ -8,7 +8,7 @@ export type DodoPayment = {
  customer?: {email?:string}; refund_status?:string;
 };
 export type DodoProduct = { product_id?:string; is_recurring?:boolean;
- price?:{type?:string;currency?:string;price?:number;pay_what_you_want?:boolean} };
+ price?:{type?:string;currency?:string;price?:number;pay_what_you_want?:boolean;tax_inclusive?:boolean} };
 export function getDodoProductId():string {
  const id=process.env.DODO_LOVORA_PRODUCT_ID;
  if(!id || !/^pdt_[A-Za-z0-9]+$/.test(id)) throw new Error("DODO_PRODUCT_NOT_CONFIGURED");
@@ -35,7 +35,7 @@ export async function dodoPost<T>(route:string,data:unknown):Promise<T>{
 }
 export function assertProduct(product:DodoProduct,id:string):void {
  if(product.product_id!==id || product.is_recurring!==false || product.price?.type!=="one_time_price" ||
- product.price?.currency!=="INR" || product.price?.price!==PRICE_PAISE || product.price?.pay_what_you_want===true) {
+ product.price?.currency!=="INR" || product.price?.price!==PRICE_PAISE || product.price?.pay_what_you_want===true || product.price?.tax_inclusive!==true) {
   throw new Error("DODO_PRODUCT_PRICE_MISMATCH");
  }
 }
