@@ -3,7 +3,7 @@ import {Suspense,useCallback,useEffect,useState} from "react";
 import {useRouter,useSearchParams} from "next/navigation";
 import Link from "next/link";
 import "./return.css";
-type State="checking"|"pending"|"generating"|"ready"|"failed"|"revoked"|"error";
+type State="checking"|"pending"|"paid"|"generating"|"ready"|"failed"|"revoked"|"error";
 function ReturnContent(){
  const params=useSearchParams(),router=useRouter();
  const order=params.get("order");
