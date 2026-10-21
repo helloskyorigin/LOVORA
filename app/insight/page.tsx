@@ -85,6 +85,7 @@ function InsightContent(){
               <ul>{c.chapters.map(x=><li key={x}><span>✧</span>{x}</li>)}</ul>
               <p className="journey__configured">{c.checkout}</p>
               <p>{c.notYet}</p>
+              <Link href="/report/sample" style={{color:"#f3cf9f",fontSize:12,textDecoration:"underline",textUnderlineOffset:4}}>{lang==="hi"?"पूरी रिपोर्ट का सैंपल देखें ↗":"Preview the seven-chapter sample report ↗"}</Link>
             </section>
           </>
         }

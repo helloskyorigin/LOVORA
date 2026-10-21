@@ -19,5 +19,7 @@ jobs:
         run: npm install --no-audit --no-fund
       - name: Typecheck
         run: npm run typecheck
+      - name: Report engine tests
+        run: npm run test
       - name: Build
         run: npm run build
