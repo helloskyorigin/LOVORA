@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import type { MarriageStoryReport } from "@/lib/report/types";
 import {localizeReport,type ReportLanguage,hindiSign,hindiPlanet} from "@/lib/report/localize";
-import "@/app/report/view.css";
+import "@/app/report/report.css";
 
 const chapterGlyph=["♡","✧","✦","◷","☾","✳","❀"];
 const labels=["THE PATH","THE HEART","THE CONNECTION","THE SEASONS","LIFE TOGETHER","THE WHY","THE KEEPSAKE"];
@@ -130,7 +130,7 @@ export function ReportExperience({report,demo=false}:{report:MarriageStoryReport
                     <button type="button" aria-expanded={isOpen} onClick={()=>toggle(chapter.id+"-"+id)}>
                       <span><i>✦</i>{item.title}</span><b>{isOpen?"−":"+"}</b>
                     </button>
-                    {isOpen&&<div className="report-evidence__detail">
+                    {<div className="report-evidence__detail" hidden={!isOpen}>
                       <strong>{hi?"गणना: ":"Observed: "}{item.observation}</strong>
                       <p>{item.meaning}</p>
                     </div>}
@@ -143,7 +143,7 @@ export function ReportExperience({report,demo=false}:{report:MarriageStoryReport
           ))}
           <div className="report-method">
             <h3>{hi?"आपकी रीडिंग कैसे बनी":"How your reading was made"}</h3>
-            <p>Astrological source: {view.source.provider} · {view.source.ayanamsa} sidereal positions. Houses use a whole-sign interpretation from the verified rising sign.</p>
+            <p>{hi?"ग्रह गणना स्रोत: ":"Astrological source: "}{view.source.provider} · {view.source.ayanamsa}. {hi?"सत्यापित लग्न से पूरे राशि वाले भाव निकाले गए हैं।":"Sidereal positions and whole-sign house interpretation from the verified rising sign."}</p>
             <p>{hi?"प्रयुक्त तरीके: ":"Used: "}{view.source.methods.join(" · ")}.</p>
             {view.source.partial.length>0&&<p>{hi?"डेटा की सीमाएँ: ":"Data limitations: "}{view.source.partial.join(" · ")}.</p>}
             <p>{view.disclaimer}</p>
