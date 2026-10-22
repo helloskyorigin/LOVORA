@@ -90,7 +90,7 @@ export async function markReadyIfPaid(id:string,paymentId:string,reportId:string
  return Number(await redis(["EVAL",lua,1,orderKey(id),paymentId,reportId]))===1;
 }
 export async function revokeMatchingPayment(id:string,paymentId:string):Promise<boolean>{
- const lua="if redis.call('HGET',KEYS[1],'paymentId')~=ARGV[1] then return 0 end;redis.call('HSET',KEYS[1],'status','revoked','encryptedDraft','');return 1";
+ const lua="local s=redis.call('HGET',KEYS[1],'status');local p=redis.call('HGET',KEYS[1],'paymentId') or '';if not s or (p~='' and p~=ARGV[1]) then return 0 end;redis.call('HSET',KEYS[1],'status','revoked','paymentId',ARGV[1],'encryptedDraft','');return 1";
  return Number(await redis(["EVAL",lua,1,orderKey(id),paymentId]))===1;
 }
 export async function failPendingOrder(id:string):Promise<void>{

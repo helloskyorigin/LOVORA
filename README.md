@@ -158,3 +158,9 @@ LOVORA_SUPPORT_EMAIL=
 - Payment state changes and report readiness use atomic Redis scripts to prevent a refund/dispute racing a successful webhook or report write.
 - Historical birth times in DST folds/gaps are rejected as ambiguous rather than silently choosing an incorrect instant.
 - **Still needs real integration testing:** GeoNames, Prokerala, Dodo test checkout/refund, Resend recovery, taxes and mobile PDF. No production credentials are embedded in this repository.
+
+## Operator preflight (no real transactions)
+
+Run `npm run preflight` locally after configuring `.env.local`, or run it in a provisioned deployment shell. It verifies required keys **by presence only**, HTTPS origin, paid-mode settings, and cost ceilings. It deliberately **does not send paid requests**, publish a site, fetch payment data, claim merchant approval, or verify external credentials; conduct provider-specific sandbox tests manually.
+
+If checkout is disabled by default, missing payment settings are reported as preparation tasks, not reasons to expose a nonfunctional live pay button. **An eligible adult merchant must obtain Dodo approval** and supply verified contact/operating details before actual charges.
