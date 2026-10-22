@@ -26,8 +26,7 @@ export async function redis(args:(string|number)[]):Promise<unknown>{
 }
 export async function createOrder(order:PaidOrder){
  const entries=Object.entries(order).flatMap(([name,value])=>[name,value]);
- await redis(["HSET",orderKey(order.id),...entries]);
- await redis(["EXPIRE",orderKey(order.id),DURATION]);
+ await redis(["EVAL","redis.call('HSET',KEYS[1],unpack(ARGV,2));redis.call('EXPIRE',KEYS[1],ARGV[1]);return 1",1,orderKey(order.id),DURATION,...entries]);
 }
 export async function readOrder(id:string):Promise<PaidOrder|null>{
  if(!/^[a-f0-9-]{36}$/.test(id))return null;
@@ -41,12 +40,14 @@ export async function readOrder(id:string):Promise<PaidOrder|null>{
 }
 export async function patchOrder(id:string,updates:Partial<Omit<PaidOrder,"id">>){
  const entries=Object.entries(updates).flatMap(([name,value])=>[name,value]);
- if(entries.length)await redis(["HSET",orderKey(id),...entries]);
+ if(entries.length)await redis(["EVAL","if redis.call('EXISTS',KEYS[1]) == 0 then return 0 end;redis.call('HSET',KEYS[1],unpack(ARGV));return 1",1,orderKey(id),...entries]);
 }
 export async function limitAttempts(key:string,max:number,windowSeconds:number){
- const number=Number(await redis(["INCR","lovora:payment:rate:"+key]));
- if(number===1)await redis(["EXPIRE","lovora:payment:rate:"+key,windowSeconds]);
- return number<=max;
+ if(!Number.isSafeInteger(max)||max<1||!Number.isSafeInteger(windowSeconds)||windowSeconds<1)throw new Error("INVALID_RATE_POLICY");
+ const number=Number(await redis(["EVAL",
+  "local n=redis.call('INCR',KEYS[1]);if n==1 then redis.call('EXPIRE',KEYS[1],ARGV[1]) end;return n",
+  1,"lovora:payment:rate:"+key,windowSeconds]));
+ return Number.isFinite(number)&&number<=max;
 }
 export async function lockFulfillment(orderId:string):Promise<string|null>{
  const token=randomBytes(16).toString("hex");
@@ -75,4 +76,22 @@ export function decodeDraft(payload:string):JourneyDraft {
  const draft=JSON.parse(Buffer.concat([dec.update(data),dec.final()]).toString("utf8")) as JourneyDraft;
  if(!draft.relationship||!draft.timeKnown||!draft.birthTime||!draft.place?.timezone)throw new Error("INVALID_ORDER_DATA");
  return draft;
+}
+
+/** All entitlement state transitions are atomic across webhook/return/refund workers. */
+export async function markVerifiedPaid(id:string,paymentId:string):Promise<boolean>{
+ const lua="local s=redis.call('HGET',KEYS[1],'status');if not s or s=='revoked' then return 0 end;local p=redis.call('HGET',KEYS[1],'paymentId') or '';if p~='' and p~=ARGV[1] then return 0 end;if s=='ready' then return 1 end;redis.call('HSET',KEYS[1],'status','paid','paymentId',ARGV[1]);return 1";
+ return Number(await redis(["EVAL",lua,1,orderKey(id),paymentId]))===1;
+}
+export async function markReadyIfPaid(id:string,paymentId:string,reportId:string):Promise<boolean>{
+ const lua="if redis.call('HGET',KEYS[1],'status')~='paid' or redis.call('HGET',KEYS[1],'paymentId')~=ARGV[1] then return 0 end;redis.call('HSET',KEYS[1],'status','ready','reportId',ARGV[2],'encryptedDraft','');return 1";
+ return Number(await redis(["EVAL",lua,1,orderKey(id),paymentId,reportId]))===1;
+}
+export async function revokeMatchingPayment(id:string,paymentId:string):Promise<boolean>{
+ const lua="if redis.call('HGET',KEYS[1],'paymentId')~=ARGV[1] then return 0 end;redis.call('HSET',KEYS[1],'status','revoked','encryptedDraft','');return 1";
+ return Number(await redis(["EVAL",lua,1,orderKey(id),paymentId]))===1;
+}
+export async function failPendingOrder(id:string):Promise<void>{
+ const lua="if redis.call('HGET',KEYS[1],'status')=='pending' then redis.call('HSET',KEYS[1],'status','failed') end;return 1";
+ await redis(["EVAL",lua,1,orderKey(id)]);
 }

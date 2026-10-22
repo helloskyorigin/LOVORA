@@ -1,7 +1,7 @@
 import {NextRequest,NextResponse} from "next/server";
 import {Webhook} from "standardwebhooks";
 import {dodoGet,getDodoProductId,validPayment,type DodoPayment} from "@/lib/payments/dodo";
-import {readOrder,patchOrder} from "@/lib/payments/order-store";
+import {readOrder,markVerifiedPaid,revokeMatchingPayment,failPendingOrder} from "@/lib/payments/order-store";
 import {fulfillPaidOrder} from "@/lib/payments/fulfill";
 
 export const runtime="nodejs";
@@ -38,11 +38,15 @@ export async function POST(request:NextRequest){
   const orderId=payment.metadata?.lovora_order_id;
   if(!orderId||!/^[a-f0-9-]{36}$/.test(orderId))return NextResponse.json({ok:true,ignored:true});
   const order=await readOrder(orderId);
-  if(!order||!order.sessionId||payment.checkout_session_id!==order.sessionId)return NextResponse.json({ok:true,ignored:true});
+  if(!order)return NextResponse.json({ok:true,ignored:true});
+  // An unusually fast webhook may arrive before the checkout session ID is persisted.
+  // A retryable response prevents silently losing a legitimate paid purchase.
+  if(!order.sessionId)return new Response("Checkout session pending; retry event",{status:503});
+  if(payment.checkout_session_id!==order.sessionId)return NextResponse.json({ok:true,ignored:true});
   if(type==="payment.succeeded"){
    if(!validPayment(payment,order,getDodoProductId()))return new Response("Payment validation failed",{status:422});
-   if(order.status==="revoked")return NextResponse.json({ok:true,revoked:true});
-   if(order.status!=="ready")await patchOrder(orderId,{status:"paid",paymentId});
+   if(payment.payment_id!==paymentId)return new Response("Mismatched payment identity",{status:422});
+   if(!await markVerifiedPaid(orderId,paymentId))return NextResponse.json({ok:true,revoked:true});
    try{
     await fulfillPaidOrder(orderId);
    }catch(err){
@@ -51,10 +55,10 @@ export async function POST(request:NextRequest){
    }
   }
   if(type==="payment.failed"||type==="payment.cancelled"){
-   if(order.status==="pending")await patchOrder(orderId,{status:"failed"});
+   await failPendingOrder(orderId);
   }
   if(type==="refund.succeeded"||type==="dispute.opened"){
-   if(order.paymentId===paymentId)await patchOrder(orderId,{status:"revoked"});
+   await revokeMatchingPayment(orderId,paymentId);
   }
   return NextResponse.json({ok:true});
  }catch(err){

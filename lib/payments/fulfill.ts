@@ -1,7 +1,7 @@
 import "server-only";
 import {generateAndStoreReport} from "@/lib/report/generate";
 import {indexPurchasedReport} from "@/lib/recovery/store";
-import {readOrder,patchOrder,lockFulfillment,unlockFulfillment,decodeDraft} from "./order-store";
+import {readOrder,lockFulfillment,unlockFulfillment,decodeDraft,markReadyIfPaid} from "./order-store";
 
 // Only called for orders whose succeeded payment was verified against Dodo's
 // API, never based on browser query parameters.
@@ -20,7 +20,8 @@ export async function fulfillPaidOrder(id:string):Promise<"ready"|"busy"|"unavai
   const latest=await readOrder(id);
   // A refund or dispute can revoke access while report creation is in-flight.
   if(!latest||latest.status!=="paid"||latest.paymentId!==order.paymentId)return "unavailable";
-  await patchOrder(id,{status:"ready",reportId:report.id,encryptedDraft:""});
+  // The final state write must not race a refund or dispute webhook.
+  if(!await markReadyIfPaid(id,order.paymentId,report.id))return "unavailable";
   await indexPurchasedReport({...latest,status:"ready",reportId:report.id,encryptedDraft:""});
   return "ready";
  }finally{

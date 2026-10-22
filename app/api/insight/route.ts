@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { BIRTH_COOKIE, BIRTH_TTL_SECONDS, readBirthDraft, sealBirthDraft } from "@/lib/birth-session";
 import { calculateFreeInsight } from "@/lib/prokerala";
-import { allowPreview } from "@/lib/preview-guard";
+import { allowPublicCost } from "@/lib/traffic-guard";
 import type { JourneyDraft } from "@/lib/context";
 
 export const runtime = "nodejs";
@@ -20,8 +20,14 @@ export async function POST(request: NextRequest) {
     error: "An exact birth time is needed for the preview. We will not invent a birth time. Please add it to continue.",
   }, { status: 422, headers });
   if (draft.preview) return NextResponse.json({ ok: true, insight: draft.preview }, { headers });
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  if (!allowPreview(ip)) return NextResponse.json({ ok: false, code: "RATE_LIMIT", error: "Too many chart requests. Please try again later." }, { status: 429, headers });
+  try {
+    if (!await allowPublicCost(request,"insight"))return NextResponse.json({
+      ok:false,code:"RATE_LIMIT",error:"Free astrology requests have reached their hourly or daily limit. Try later.",
+    },{status:429,headers});
+  }catch(error){
+    console.error("LOVORA usage limiter unavailable:",error instanceof Error?error.message:"unknown");
+    return NextResponse.json({ok:false,code:"LIMITER_UNAVAILABLE",error:"Our preview is temporarily unavailable. Please retry later."},{status:503,headers});
+  }
 
   const cacheKey = createHash("sha256").update(JSON.stringify([
     draft.dateOfBirth, draft.birthTime, draft.place.id, draft.place.latitude,

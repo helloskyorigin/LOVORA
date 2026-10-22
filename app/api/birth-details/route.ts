@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { validateBirthInput } from "@/lib/birth";
 import { getVerifiedPlace } from "@/lib/geonames";
+import { allowPublicCost } from "@/lib/traffic-guard";
 import { BIRTH_COOKIE, BIRTH_TTL_SECONDS, readBirthDraft, sealBirthDraft } from "@/lib/birth-session";
 import type { BirthDraft } from "@/lib/birth";
 
@@ -34,6 +35,7 @@ export async function POST(request: NextRequest) {
   const validated = validateBirthInput(body);
   if (!validated.ok) return NextResponse.json({ ok: false, error: validated.error }, { status: 400, headers });
   try {
+    if(!await allowPublicCost(request,"birth"))return NextResponse.json({ok:false,error:"Too many birthplace lookups. Please retry later."},{status:429,headers});
     const place = await getVerifiedPlace(validated.data.placeId);
     const draft: BirthDraft = {
       firstName: validated.data.firstName,
