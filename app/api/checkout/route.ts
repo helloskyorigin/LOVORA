@@ -22,6 +22,7 @@ function publicOrigin(request:NextRequest){
  return url.origin;
 }
 export async function POST(request:NextRequest){
+ if(!process.env.LOVORA_SUPPORT_EMAIL||!process.env.LOVORA_OPERATOR_NAME)return NextResponse.json({ok:false,error:"Payment support and legal operator details are required before charging."},{status:503,headers});
  if(process.env.LOVORA_PAYMENTS_ENABLED!=="true")return NextResponse.json({ok:false,error:"Payments are not enabled yet. Merchant approval is required."},{status:503,headers});
  const origin=request.headers.get("origin");
  if(origin&&origin!==new URL(request.url).origin)return NextResponse.json({ok:false,error:"Invalid request origin."},{status:403,headers});

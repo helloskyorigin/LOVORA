@@ -207,6 +207,6 @@ export default function Home() {
     </div></section>
 
     <section className="section faq-section"><div className="wrap faq-layout"><div data-reveal><span className="eyebrow"><b>✦</b>{c.faqKicker}</span><h2>{c.faqTitle}</h2></div><div className="faq-items">{c.faqs.map(([q,a])=><details key={q}><summary>{q}<span aria-hidden="true">+</span></summary><p>{a}</p></details>)}</div></div></section>
-    <footer className="footer"><div className="wrap footer-top"><div><a className="logo" href="#top"><Mark/><span>LOVORA</span></a><p>{c.footerTag}</p></div><a className="back-top" href="#top">{c.back} ↑</a></div><div className="wrap footer-bottom"><p>{c.footerNote}</p><span>© {new Date().getFullYear()} LOVORA</span></div></footer>
+    <footer className="footer"><div className="wrap footer-top"><div><a className="logo" href="#top"><Mark/><span>LOVORA</span></a><p>{c.footerTag}</p></div><a className="back-top" href="#top">{c.back} ↑</a></div><div className="wrap footer-bottom"><p>{c.footerNote}</p><nav aria-label="Help and legal" className="lovora-legal-links"><a href="/recover">Recover My Story</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a><a href="/refunds">Refunds</a><a href="/support">Support</a></nav><span>© {new Date().getFullYear()} LOVORA</span></div></footer>
   </main>;
 }

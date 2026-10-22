@@ -151,6 +151,6 @@ export function ReportExperience({report,demo=false}:{report:MarriageStoryReport
         </div>
       </div>
     </div>
-    <footer className="report-footer"><span>✦ LOVORA</span><p>{hi?"हर दिल की अपनी कहानी है।":"Every heart has its own story."}</p><Link href="/">{hi?"LOVORA पर वापस ↑":"Back to LOVORA ↑"}</Link></footer>
+    <footer className="report-footer"><span>✦ LOVORA</span><p>{hi?"हर दिल की अपनी कहानी है।":"Every heart has its own story."}</p><Link href="/recover">{hi?"रिपोर्ट रिकवर करें":"Recover My Story"}</Link><Link href="/">{hi?"LOVORA पर वापस ↑":"Back to LOVORA ↑"}</Link></footer>
   </main>;
 }

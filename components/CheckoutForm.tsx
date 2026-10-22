@@ -27,6 +27,7 @@ export function CheckoutForm({lang}:{lang:"en"|"hi"}){
   </label>
   {error&&<p className="lovora-checkout__error" role="alert">{error}</p>}
   <button type="submit" disabled={busy||!ack} className="lovora-checkout__button">{busy?(lang==="hi"?"चेकआउट खोल रहे हैं...":"Preparing secure checkout..."):(lang==="hi"?"पूरी कहानी अनलॉक करें — ₹299":"Unlock My Complete Story — ₹299")} <span>↗</span></button>
+  <p className="lovora-checkout__fine"><a href="/terms">Terms</a> · <a href="/privacy">Privacy</a> · <a href="/refunds">Refunds</a> · <a href="/support">Support</a></p>
   <p className="lovora-checkout__fine">{lang==="hi"?"Dodo Payments पर सुरक्षित भुगतान। भुगतान सफल होने और सत्यापन के बाद रिपोर्ट खुलेगी।":"Secure Dodo checkout. Your report unlocks only after verified successful payment."}</p>
  </form>;
 }
