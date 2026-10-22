@@ -1,5 +1,6 @@
 import "server-only";
 import type { JourneyDraft, PreviewInsight } from "./context";
+import { resolveBirthUTC } from "./birth-time";
 
 type OAuthToken = { access_token?: unknown; expires_in?: unknown };
 type Position = { id?: unknown; name?: unknown; rasi?: { id?: unknown; name?: unknown } };
@@ -47,35 +48,7 @@ async function accessToken(): Promise<string> {
   return cachedToken.token;
 }
 
-// Convert a historical local birth time in the verified IANA timezone to an
-// absolute UTC instant. No fixed 'today' UTC offset and no fake noon fallback.
-export function resolveBirthUTC(date: string, time: string, zone: string): Date {
-  const [year, month, day] = date.split("-").map(Number);
-  const [hour, minute] = time.split(":").map(Number);
-  const wall = Date.UTC(year, month - 1, day, hour, minute);
-  if (!Number.isFinite(wall)) throw new Error("INVALID_BIRTH_TIME");
-  const formatter = new Intl.DateTimeFormat("en-GB", {
-    timeZone: zone, year: "numeric", month: "2-digit", day: "2-digit",
-    hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23",
-  });
-  function parts(instant: number) {
-    const raw = formatter.formatToParts(new Date(instant));
-    const dict = Object.fromEntries(raw.map(item => [item.type, item.value]));
-    return { year: Number(dict.year), month: Number(dict.month), day: Number(dict.day),
-      hour: Number(dict.hour), minute: Number(dict.minute), second: Number(dict.second) };
-  }
-  function offset(ms: number) {
-    const p = parts(ms);
-    return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute, p.second) - Math.floor(ms / 1000) * 1000;
-  }
-  let instant = wall - offset(wall);
-  for (let i = 0; i < 3; i++) instant = wall - offset(instant);
-  const check = parts(instant);
-  if (check.year !== year || check.month !== month || check.day !== day || check.hour !== hour || check.minute !== minute) {
-    throw new Error("AMBIGUOUS_BIRTH_TIME");
-  }
-  return new Date(instant);
-}
+export {resolveBirthUTC} from "./birth-time";
 
 async function fetchPositions(draft: JourneyDraft, token: string): Promise<PlanetPayload> {
   if (!draft.birthTime || !draft.timeKnown) throw new Error("BIRTH_TIME_REQUIRED");
