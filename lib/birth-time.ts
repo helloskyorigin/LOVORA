@@ -4,7 +4,7 @@
  * safely be silently shifted or guessed for a paid astrological report.
  */
 export function resolveBirthUTC(date:string,time:string,zone:string):Date {
- if(!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)||!/^([01]\\d|2[0-3]):[0-5]\\d$/.test(time))throw new Error("INVALID_BIRTH_TIME");
+ if(!/^\d{4}-\d{2}-\d{2}$/.test(date)||!/^([01]\d|2[0-3]):[0-5]\d$/.test(time))throw new Error("INVALID_BIRTH_TIME");
  const [year,month,day]=date.split("-").map(Number);
  const [hour,minute]=time.split(":").map(Number);
  const wall=Date.UTC(year,month-1,day,hour,minute);
