@@ -4,7 +4,7 @@ import { BIRTH_COOKIE,readBirthDraft } from "@/lib/birth-session";
 import type { JourneyDraft } from "@/lib/context";
 import { generateAndStoreReport } from "@/lib/report/generate";
 import { ACCESS_TTL,REPORT_COOKIE,sealAccess } from "@/lib/report/access";
-import { allowPreview } from "@/lib/preview-guard";
+import { allowDevReport } from "@/lib/dev-report-limit";
 
 export const runtime="nodejs";
 export const dynamic="force-dynamic";
@@ -27,7 +27,7 @@ export async function POST(req:NextRequest){
   if(!draft?.relationship)return NextResponse.json({error:"Complete both onboarding steps first."},{status:401,headers:noStore});
   // Cost guard against accidental repeated provider calls.
   const ip=req.headers.get("x-forwarded-for")?.split(",")[0]||"local";
-  if(!allowPreview("paid-dev:"+ip))return NextResponse.json({error:"Too many development report attempts."},{status:429,headers:noStore});
+  if(!allowDevReport("paid-dev:"+ip))return NextResponse.json({error:"Too many development report attempts."},{status:429,headers:noStore});
   try{
     const report=await generateAndStoreReport(draft);
     const response=NextResponse.json({ok:true,next:"/report",id:report.id},{headers:noStore});
