@@ -9,9 +9,19 @@ export async function indexPurchasedReport(order:PaidOrder):Promise<void>{
  const key=emailIndexKey(order.email);
  await redis(["SADD",key,order.id]);
  await redis(["EXPIRE",key,INDEX_TTL]);
+ // Sorted index ensures a repeat buyer's most recent report is recoverable.
+ // The legacy set is retained for purchases created before this upgrade.
+ const score=Date.parse(order.createdAt);
+ if(Number.isFinite(score)){
+  await redis(["ZADD",key+":newest",score,order.id]);
+  await redis(["EXPIRE",key+":newest",INDEX_TTL]);
+ }
 }
 export async function newestRecoverableOrder(email:string):Promise<PaidOrder|null>{
- const entries=await redis(["SMEMBERS",emailIndexKey(email)]);
+ const key=emailIndexKey(email);
+ const newest=await redis(["ZREVRANGE",key+":newest",0,29]);
+ // Existing set-only orders still work without any destructive migration.
+ const entries=Array.isArray(newest)&&newest.length?newest:await redis(["SMEMBERS",key]);
  if(!Array.isArray(entries))return null;
  const candidates:PaidOrder[]=[];
  for(const id of entries.slice(0,30)){

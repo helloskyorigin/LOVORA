@@ -30,6 +30,7 @@ export default function PaidReportPage(){
       <h1>{loading?"Opening your story…":"Your story is private."}</h1>
       <p>{loading?"Checking secure report access.":error||"This report requires verified access. No private reading is exposed without authorization."}</p>
       <Link href="/insight">Return to my free insight ↗</Link>
+      <Link href="/recover">Already purchased? Recover by email ↗</Link>
     </div></section>
   </main>;
 }

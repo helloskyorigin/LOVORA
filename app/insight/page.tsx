@@ -87,6 +87,7 @@ function InsightContent(){
               <p className="journey__configured">{c.checkout}</p>
               <CheckoutForm lang={lang}/>
               <Link href="/report/sample" style={{color:"#f3cf9f",fontSize:12,textDecoration:"underline",textUnderlineOffset:4}}>{lang==="hi"?"पूरी रिपोर्ट का सैंपल देखें ↗":"Preview the seven-chapter sample report ↗"}</Link>
+              <Link href="/recover" style={{color:"#f3cf9f",fontSize:12,textDecoration:"underline",textUnderlineOffset:4}}>{lang==="hi"?"पहले खरीदी रिपोर्ट ईमेल से वापस पाएँ ↗":"Already paid? Recover your report by email ↗"}</Link>
             </section>
           </>
         }

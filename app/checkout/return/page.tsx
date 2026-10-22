@@ -51,6 +51,7 @@ function ReturnContent(){
    <div className="lovora-return__actions">
     <button type="button" onClick={()=>{setAttempt(0);void refresh();}} disabled={status==="ready"}>Check payment again ↻</button>
     <Link href="/insight">Back to free insight</Link>
+    <Link href="/recover">Recover my purchase by email</Link>
     {status==="needs_support"&&<Link href="/support">Contact support</Link>}
    </div>
    <p className="lovora-return__footnote">No report unlock without a provider-verified successful payment. Keep your checkout email for receipt and support.</p>
