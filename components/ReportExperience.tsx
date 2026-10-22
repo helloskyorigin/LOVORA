@@ -23,7 +23,7 @@ export function ReportExperience({report,demo=false}:{report:MarriageStoryReport
     document.getElementById("lovora-chapter-"+(index+1))?.scrollIntoView({behavior:window.matchMedia("(prefers-reduced-motion: reduce)").matches?"instant":"smooth",block:"start"});
   }
 
-  return <main className={"report-site"+(hi?" report-site--hi":"")} lang={lang}>
+  return <main className={"report-site"+(hi?" report-site--hi":"")+(demo?" report-site--demo":"")} lang={lang}>
     <header className="report-header">
       <div className="report-header__inner">
         <Link href="/" className="report-header__brand"><span className="report-header__star">✦</span> LOVORA</Link>

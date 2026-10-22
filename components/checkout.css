@@ -16,3 +16,5 @@
 .lovora-checkout__fine{margin:15px 0 0;color:#cbb5d1;font-size:10px;line-height:1.7}
 @media(max-width:420px){.lovora-checkout{padding:20px 16px}.lovora-checkout__price{font-size:48px}}
 @media(prefers-reduced-motion:reduce){.lovora-checkout__button{transition:none}}
+
+.lovora-checkout__fine a{text-decoration:underline;text-underline-offset:3px;color:#f3d0df}

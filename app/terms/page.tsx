@@ -1,5 +1,6 @@
 import type {Metadata} from "next";
 import {PolicyLayout} from "@/components/PolicyLayout";
+export const dynamic="force-dynamic";
 export const metadata:Metadata={title:"Terms of Service · LOVORA"};
 export default function TermsPage(){return <PolicyLayout eyebrow="THE LITTLE DETAILS" title="Terms of Service">
  <section><h2>1. What LOVORA is</h2><p>LOVORA offers a personal, entertainment-oriented interpretation of traditional Vedic astrological chart indicators. It is not scientifically validated forecasting, psychological counseling, medical, legal or financial advice, and it cannot identify a future spouse or guarantee marriage type, timing or outcome.</p></section>

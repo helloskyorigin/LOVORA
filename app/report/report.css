@@ -132,3 +132,7 @@
  .report-evidence__detail[hidden]{display:block!important}
  .report-site--hi .report-cover h1{font-size:64px}
 }
+
+.report-site--demo .report-demo-alert{font-weight:500}
+@media print{.report-site--demo .report-demo-alert{display:block!important;background:#f9e4b9!important;color:#402b30!important;padding:10px 15px;text-align:center;border-bottom:2px solid #b47783;print-color-adjust:exact}
+.report-site--demo::after{content:'ILLUSTRATIVE SAMPLE · NOT YOUR PERSONAL CHART';position:fixed;z-index:1000;bottom:8px;left:0;right:0;text-align:center;color:#85566c;font:11px Arial,sans-serif;letter-spacing:.15em}}

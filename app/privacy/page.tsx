@@ -1,5 +1,6 @@
 import type {Metadata} from "next";
 import {PolicyLayout} from "@/components/PolicyLayout";
+export const dynamic="force-dynamic";
 export const metadata:Metadata={title:"Privacy Policy · LOVORA"};
 export default function PrivacyPage(){return <PolicyLayout eyebrow="YOUR DETAILS MATTER" title="Privacy Policy">
  <section><h2>1. The information you provide</h2><p>LOVORA collects the birth date, birth time, birth city, optional first name and relationship question answers that you choose to enter. To purchase a report, you provide an email address to the payment checkout. These details can be sensitive and should be shared only if you are comfortable doing so.</p></section>

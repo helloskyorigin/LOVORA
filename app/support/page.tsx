@@ -1,6 +1,7 @@
 import type {Metadata} from "next";
 import Link from "next/link";
 import {PolicyLayout} from "@/components/PolicyLayout";
+export const dynamic="force-dynamic";
 export const metadata:Metadata={title:"Support · LOVORA"};
 export default function SupportPage(){
  const email=process.env.LOVORA_SUPPORT_EMAIL;

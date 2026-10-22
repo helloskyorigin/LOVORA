@@ -1,5 +1,6 @@
 import type {Metadata} from "next";
 import {PolicyLayout} from "@/components/PolicyLayout";
+export const dynamic="force-dynamic";
 export const metadata:Metadata={title:"Refund Policy · LOVORA"};
 export default function RefundPolicyPage(){return <PolicyLayout eyebrow="CLEAR FROM THE START" title="Refund Policy">
  <section><h2>One-time digital reading</h2><p>The full LOVORA marriage reading is a digital report offered as a single ₹299 purchase. The product is created for the birth details provided and cannot be physically returned.</p></section>
