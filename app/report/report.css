@@ -119,3 +119,16 @@
   .report-final{color:#33243a!important;background:#eee3ed!important;print-color-adjust:exact}
   a{color:inherit!important;text-decoration:none!important}
 }
+
+.report-site--hi{font-family:'Noto Sans Devanagari','DM Sans',sans-serif}
+.report-site--hi h1,.report-site--hi h2,.report-site--hi h3,.report-site--hi .report-chapter__lead,.report-site--hi .report-cover__sub{font-family:'Noto Serif Devanagari',Georgia,serif;line-height:1.4;letter-spacing:0}
+.report-site--hi .report-cover h1{font-size:clamp(48px,7vw,77px);line-height:1.35}
+.report-site--hi .report-summary h2{font-size:clamp(36px,6vw,62px)}
+.report-site--hi .report-chapter h2{font-size:clamp(40px,6.5vw,65px)}
+.report-evidence__detail[hidden]{display:none}
+@media print{
+ .report-site--hi *{font-family:'Noto Sans Devanagari',Arial,sans-serif}
+ .report-site--hi h1,.report-site--hi h2,.report-site--hi h3{font-family:'Noto Serif Devanagari',Georgia,serif}
+ .report-evidence__detail[hidden]{display:block!important}
+ .report-site--hi .report-cover h1{font-size:64px}
+}
