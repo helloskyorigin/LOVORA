@@ -30,9 +30,13 @@ function signOf(value: unknown): SignName|null{
 }
 function nameOf(row:RawPosition):PlanetName|null{
   const id = typeof row.id === "number" && Number.isInteger(row.id) ? row.id : -1;
-  if (Object.prototype.hasOwnProperty.call(ID_TO_NAME,id)) return ID_TO_NAME[id];
-  const raw = typeof row.name==="string" ? row.name.trim().toLowerCase() : "";
-  return (Object.values(ID_TO_NAME).find(name=>name.toLowerCase()===raw)) || null;
+  const mapped=Object.prototype.hasOwnProperty.call(ID_TO_NAME,id)?ID_TO_NAME[id]:null;
+  const raw=typeof row.name==="string"?row.name.trim().toLowerCase():"";
+  const named=Object.values(ID_TO_NAME).find(name=>name.toLowerCase()===raw)||null;
+  // Never label Mercury as Venus because an upstream numeric ID changed.
+  if(named&&mapped&&named!==mapped)throw new Error("PLANET_ID_NAME_CONFLICT");
+  if(raw&&!named)return null;
+  return named||mapped;
 }
 export function normalizePlanets(rows:RawPosition[]):VerifiedPlanet[]{
   if(!Array.isArray(rows)||rows.length>40)throw new Error("UNSUPPORTED_CHART_RESPONSE");

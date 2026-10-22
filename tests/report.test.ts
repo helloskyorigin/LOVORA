@@ -77,3 +77,14 @@ test("timing data requires verifiable ISO start/end and named relevant lord",()=
   assert.equal(report.timing.windows[0].name,"Venus");
   assert.ok(report.timing.windows[0].why.includes("not a marriage forecast"));
 });
+
+test("rejects conflicting provider ID/name instead of misidentifying Venus",()=>{
+ const rows=source().planets.map(x=>({...x}));
+ rows[4]={...rows[4],id:4,name:"Venus"};
+ assert.throws(()=>normalizePlanets(rows),/PLANET_ID_NAME_CONFLICT/);
+});
+test("does not silently trust a known ID with an unknown planet name",()=>{
+ const rows=source().planets.map(x=>({...x}));
+ rows[4]={...rows[4],name:"Unknown planet"};
+ assert.throws(()=>normalizePlanets(rows),/INCOMPLETE_CHART/);
+});

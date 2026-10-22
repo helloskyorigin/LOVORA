@@ -71,7 +71,9 @@ async function fetchPositions(draft: JourneyDraft, token: string): Promise<Plane
 function extractVenus(value: PlanetPayload): PreviewInsight {
   const planets = value.data?.planet_position;
   if (value.status !== "ok" || !Array.isArray(planets)) throw new Error("UNSUPPORTED_CHART_RESPONSE");
-  const venus = planets.find(planet => planet.id === 3 || (typeof planet.name === "string" && planet.name.toLowerCase() === "venus"));
+  // Prefer the provider's explicit planet name; an ID-only fallback could
+  // silently label a different planet as Venus if the API enumeration changes.
+  const venus = planets.find(planet => typeof planet.name === "string" && planet.name.trim().toLowerCase() === "venus");
   if (!venus?.rasi || typeof venus.rasi.name !== "string") throw new Error("UNSUPPORTED_CHART_RESPONSE");
   const index = ZODIAC.findIndex(([name]) => name.toLowerCase() === (venus.rasi?.name as string).trim().toLowerCase());
   if (index < 0) throw new Error("UNSUPPORTED_CHART_RESPONSE");
