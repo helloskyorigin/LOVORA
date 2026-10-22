@@ -3,7 +3,7 @@ import {Suspense,useCallback,useEffect,useState} from "react";
 import {useRouter,useSearchParams} from "next/navigation";
 import Link from "next/link";
 import "./return.css";
-type State="checking"|"pending"|"paid"|"generating"|"ready"|"failed"|"revoked"|"error";
+type State="checking"|"pending"|"paid"|"generating"|"ready"|"failed"|"revoked"|"needs_support"|"error";
 function ReturnContent(){
  const params=useSearchParams(),router=useRouter();
  const order=params.get("order");
@@ -25,16 +25,17 @@ function ReturnContent(){
  },[order,router]);
  useEffect(()=>{void refresh();},[refresh]);
  useEffect(()=>{
-  if(status==="ready"||status==="failed"||status==="revoked"||attempt>=24)return;
+  if(status==="ready"||status==="failed"||status==="revoked"||status==="needs_support"||attempt>=24)return;
   const timer=window.setTimeout(()=>{setAttempt(n=>n+1);void refresh();},5000);
   return ()=>window.clearTimeout(timer);
  },[attempt,refresh,status]);
  const title=status==="ready"?"Your story is ready.":status==="failed"?"Payment did not complete.":
-   status==="revoked"?"This payment was reversed.":status==="generating"?"Writing your story…":
+   status==="revoked"?"This payment was reversed.":status==="needs_support"?"Your payment needs our support team.":status==="generating"?"Writing your story…":
    status==="error"?"We couldn't verify it yet.":"Checking your payment…";
  const body=status==="ready"?"Opening your complete marriage reading.":
    status==="failed"?"You have not been charged for a successful purchase. You can try a new checkout from your free insight.":
    status==="revoked"?"Report access is unavailable because the payment was refunded or disputed.":
+   status==="needs_support"?"Your payment was confirmed, but the astrology provider has repeatedly failed. Please contact support with your receipt email; do not purchase again.":
    status==="generating"?"Payment confirmed. We are calculating real chart details and preparing your seven chapters.":
    status==="error"?(detail||"Your report remains private. Check again if you completed payment."):
    "A payment redirect is not proof of purchase. We're checking the secure order status.";
@@ -50,6 +51,7 @@ function ReturnContent(){
    <div className="lovora-return__actions">
     <button type="button" onClick={()=>{setAttempt(0);void refresh();}} disabled={status==="ready"}>Check payment again ↻</button>
     <Link href="/insight">Back to free insight</Link>
+    {status==="needs_support"&&<Link href="/support">Contact support</Link>}
    </div>
    <p className="lovora-return__footnote">No report unlock without a provider-verified successful payment. Keep your checkout email for receipt and support.</p>
   </section>

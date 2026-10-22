@@ -1,7 +1,8 @@
 import "server-only";
 import {generateAndStoreReport} from "@/lib/report/generate";
 import {indexPurchasedReport} from "@/lib/recovery/store";
-import {readOrder,lockFulfillment,unlockFulfillment,decodeDraft,markReadyIfPaid} from "./order-store";
+import {readOrder,lockFulfillment,unlockFulfillment,decodeDraft,markReadyIfPaid,recordGenerationAttempt} from "./order-store";
+import {generationRetryState} from "./retry-policy";
 
 // Only called for orders whose succeeded payment was verified against Dodo's
 // API, never based on browser query parameters.
@@ -15,6 +16,9 @@ export async function fulfillPaidOrder(id:string):Promise<"ready"|"busy"|"unavai
  try{
   const order=await readOrder(id);
   if(!order||order.status!=="paid"||!order.paymentId||!order.encryptedDraft)return "unavailable";
+  const retry=generationRetryState(order.generationAttempts||0,order.lastAttemptAt||0);
+  if(retry!=="run")return retry==="cooldown"?"busy":"unavailable";
+  await recordGenerationAttempt(id,Date.now());
   const draft=decodeDraft(order.encryptedDraft);
   const report=await generateAndStoreReport(draft);
   const latest=await readOrder(id);

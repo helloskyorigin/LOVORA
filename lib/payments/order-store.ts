@@ -6,6 +6,7 @@ export type OrderStatus="pending"|"paid"|"ready"|"failed"|"revoked";
 export type PaidOrder={
  id:string;email:string;sessionId:string;paymentId:string;
  status:OrderStatus;reportId:string;encryptedDraft:string;createdAt:string;
+ generationAttempts?:number;lastAttemptAt?:number;
 };
 const PREFIX="lovora:order:v1:";
 const DURATION=60*60*24*365;
@@ -36,7 +37,8 @@ export async function readOrder(id:string):Promise<PaidOrder|null>{
  for(let i=0;i<value.length;i+=2)if(typeof value[i]==="string"&&typeof value[i+1]==="string")out[value[i]]=value[i+1];
  if(out.id!==id||!out.status)return null;
  return {id:out.id,email:out.email||"",sessionId:out.sessionId||"",paymentId:out.paymentId||"",
- status:out.status as OrderStatus,reportId:out.reportId||"",encryptedDraft:out.encryptedDraft||"",createdAt:out.createdAt||""};
+ status:out.status as OrderStatus,reportId:out.reportId||"",encryptedDraft:out.encryptedDraft||"",createdAt:out.createdAt||"",
+ generationAttempts:Number(out.generationAttempts||0),lastAttemptAt:Number(out.lastAttemptAt||0)};
 }
 export async function patchOrder(id:string,updates:Partial<Omit<PaidOrder,"id">>){
  const entries=Object.entries(updates).flatMap(([name,value])=>[name,value]);
@@ -94,4 +96,11 @@ export async function revokeMatchingPayment(id:string,paymentId:string):Promise<
 export async function failPendingOrder(id:string):Promise<void>{
  const lua="if redis.call('HGET',KEYS[1],'status')=='pending' then redis.call('HSET',KEYS[1],'status','failed') end;return 1";
  await redis(["EVAL",lua,1,orderKey(id)]);
+}
+
+/** Called only under the per-order fulfillment lock to bound provider retries. */
+export async function recordGenerationAttempt(id:string,now:number):Promise<void>{
+ const lua="if redis.call('HGET',KEYS[1],'status')~='paid' then return 0 end;redis.call('HINCRBY',KEYS[1],'generationAttempts',1);redis.call('HSET',KEYS[1],'lastAttemptAt',ARGV[1]);return 1";
+ const result=await redis(["EVAL",lua,1,orderKey(id),now]);
+ if(Number(result)!==1)throw new Error("PAID_ORDER_NOT_READY");
 }

@@ -150,3 +150,11 @@ LOVORA_SUPPORT_EMAIL=
 6. Signed merchant/legal identity, applicable data privacy and refund policy legal review, verified adult-operated merchant approval.
 
 **Do not enable live payments merely because GitHub build passes.** `LOVORA_PAYMENTS_ENABLED=false` is the safe default until provider test receipts, merchant approval and customer-support details are verified. Currently no real external API request, email delivery, paid purchase or refund has been tested using merchant-owned credentials.
+
+## Phase 7 provider-cost and fulfillment resilience
+
+- Public city search, birth verification and free astrology now require **shared Upstash Redis** rate counters, not per-instance memory. The default global 24-hour ceilings are 900 place searches, 250 birth verifications and 100 free chart requests. Adjust with server-only `LOVORA_PLACES_PER_DAY`, `LOVORA_BIRTH_VERIFICATIONS_PER_DAY`, and `LOVORA_FREE_CHARTS_PER_DAY` (each 1–5000) after checking provider quota. When Redis is unavailable, calls fail closed rather than spending unbounded third-party credits.
+- Paid report generation now attempts at most six times, with backoff across webhook deliveries and browser polling. A paid order that exhausts attempts displays a support path instead of silently draining paid Prokerala credits. Merchant support must resolve a stuck purchase or provide an appropriate refund; never tell the customer to buy again.
+- Payment state changes and report readiness use atomic Redis scripts to prevent a refund/dispute racing a successful webhook or report write.
+- Historical birth times in DST folds/gaps are rejected as ambiguous rather than silently choosing an incorrect instant.
+- **Still needs real integration testing:** GeoNames, Prokerala, Dodo test checkout/refund, Resend recovery, taxes and mobile PDF. No production credentials are embedded in this repository.
