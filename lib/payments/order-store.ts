@@ -8,7 +8,7 @@ export type PaidOrder={
  status:OrderStatus;reportId:string;encryptedDraft:string;createdAt:string;
 };
 const PREFIX="lovora:order:v1:";
-const DURATION=60*60*24*90;
+const DURATION=60*60*24*365;
 function orderKey(id:string){
  if(!/^[a-f0-9-]{36}$/.test(id))throw new Error("INVALID_ORDER_ID");
  return PREFIX+id;
