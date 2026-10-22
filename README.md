@@ -1,6 +1,6 @@
 # LOVORA 💜
 
-**Phase 5:** Premium report engine + server-verified Dodo one-time checkout implementation. Payments default to OFF pending merchant approval, credentials, and real end-to-end verification.
+**Phase 6:** Premium report, bilingual Hindi/English reading, secure email recovery, legal/support pages and server-verified Dodo checkout are implemented. Payments remain OFF until merchant approval and real integration testing.
 
 ## Quick start
 
@@ -114,4 +114,39 @@ Other required configuration: `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKE
 
 The server uses Upstash Redis to persist private 90-day orders and one fulfillment lock per purchase. It stores encrypted birth-session snapshots, removes them once a report is created, and leaves live payment disabled without explicit configuration.
 
-**Current limitations:** The browser checkout-access cookie is device-local; secure payment-email report recovery is a planned follow-up, not built. A lost browser cookie cannot yet restore a report using email alone. Underlying astrology APIs, Dodo API and webhook events could not be exercised without merchant-owned secrets. Taxes, localized pricing and real checkout UI must be manually checked in Dodo test mode; a checkout can be rejected after verification if the amount differs from INR 299. Production legal and refund policy pages are also pending.
+**Current limitations:** A lost browser checkout cookie can be replaced with the email-recovery flow when a valid purchase is indexed and Resend email delivery is configured; the recovery flow has not yet been tested against live email delivery. Underlying astrology APIs, Dodo API and webhook events could not be exercised without merchant-owned secrets. Taxes, localized pricing and real checkout UI must be manually checked in Dodo test mode; a checkout can be rejected after verification if the amount differs from INR 299. Production legal and refund policy pages are also pending.
+
+## Phase 6 — account-free email report recovery, legal and Hindi report
+
+### Working routes
+
+- `/recover`: request an email recovery link for the purchase email.
+- `POST /api/recovery/request`: generic response regardless of whether an order exists, hashed IP/email throttling, latest paid order lookup via a private HMAC email index, 15-minute one-time token, Resend transactional email.
+- `/recover/verify?token=...`: confirmation screen that clears the token from the browser URL after hydration. Email scanners visiting this URL do not consume the token.
+- `POST /api/recovery/consume`: atomically consumes token using Redis `GETDEL`, then checks the linked order is still paid, ready and not revoked before setting secure HttpOnly report access.
+- `/privacy`, `/terms`, `/refunds`, `/support`: policy/support content with operating entity and email dynamically rendered from the environment. Live checkout refuses operation without those values.
+- `/report`, `/report/sample`: English ↔ Hindi premium reading including seven localized chapters, personalized traditional interpretation, evidence explanations and print-to-PDF in the selected language. Sample printouts have a prominent illustrative-only label.
+
+### Additional server environment
+
+```dotenv
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=LOVORA <reports@YOUR_VERIFIED_DOMAIN>
+LOVORA_OPERATOR_NAME=
+LOVORA_SUPPORT_EMAIL=
+```
+
+**Resend setup:** Verify a sending domain you control in Resend. Create an API key with email-sending permissions. Configure the sender address using that verified domain. Emails contain a recovery link only, not sensitive birth details. All sensitive values belong in encrypted server hosting settings, **not** public NEXT_PUBLIC variables or GitHub.
+
+**Important:** Redis order records, email index and reports expire after approximately 365 days. Recovery currently opens the **latest eligible purchased report** for a given email; multi-report browsing/history and an administrative deletion workflow are not implemented. Once an order is refunded, recovery access is denied by the live order check. This approach does not recover historical paid orders created before the recovery index existed unless an eligible fulfillment/indexing retry processes them.
+
+### E2E scenarios still requiring real credentials
+
+1. Real GeoNames place selection and historical timezone conversion.
+2. Prokerala actual paid/free chart response and D9/Dasha compatibility.
+3. Dodo test-mode approved INR one-time product, successful checkout, webhook signature and provider re-fetch, duplicated webhook, failed checkout, delayed fulfillment and refund reversal.
+4. Real Resend transactional delivery from verified sender, nonexistent address generic response, consumed/expired recovery token, different device recovery and revoked-order access.
+5. Hindi reading UX on mobile and actual generated Hindi print/PDF font rendering, including clearly marked sample printout.
+6. Signed merchant/legal identity, applicable data privacy and refund policy legal review, verified adult-operated merchant approval.
+
+**Do not enable live payments merely because GitHub build passes.** `LOVORA_PAYMENTS_ENABLED=false` is the safe default until provider test receipts, merchant approval and customer-support details are verified. Currently no real external API request, email delivery, paid purchase or refund has been tested using merchant-owned credentials.
