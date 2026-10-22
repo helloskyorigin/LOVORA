@@ -71,9 +71,9 @@ GitHub Actions CI runs typecheck, report unit tests and production build.
 
 ## Critical launch blockers
 
-- **Not launched:** Merchant review, production configuration, live payment tests, policy pages, and verified-email report recovery. Checkout/webhook code is present but not yet verified with real credentials.
+- **Not launched:** Merchant approval, deployment configuration, real provider integrations, live payment/refund tests and verified Resend email delivery are still pending. Policy pages and email recovery code are implemented; neither substitutes for production acceptance tests.
 - The payment webhook currently re-fetches successful payments from Dodo and compares amount, product, checkout session, email and order before requesting report generation. Run a genuine Dodo test payment before enabling live mode.
-- Rate limiting uses per-runtime in-memory limits for development; replace with a shared serverless-safe limiter, hard budget and abuse control before running costly endpoints for public traffic.
+- Phase 7 replaced the old per-runtime free-preview limiter with shared Upstash counters and configurable daily request ceilings. Verify the configured limits against actual provider quotas before public traffic.
 - Historical timezone ambiguity and unusual birthplaces require further live API testing; unusual times currently fail rather than silently normalizing.
 - Real Prokerala response variants, provider credit cost, Dasha parsing and D9 mapping require integration tests with legitimate credentials. If Dasha has an unsupported schema, timing is honestly unavailable.
 - The engine is transparent **traditional symbolic astrology**, not scientifically validated predictive accuracy, counseling or certainty about a person's real partner.
@@ -114,7 +114,7 @@ Other required configuration: `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKE
 
 The server uses Upstash Redis to persist private 90-day orders and one fulfillment lock per purchase. It stores encrypted birth-session snapshots, removes them once a report is created, and leaves live payment disabled without explicit configuration.
 
-**Current limitations:** A lost browser checkout cookie can be replaced with the email-recovery flow when a valid purchase is indexed and Resend email delivery is configured; the recovery flow has not yet been tested against live email delivery. Underlying astrology APIs, Dodo API and webhook events could not be exercised without merchant-owned secrets. Taxes, localized pricing and real checkout UI must be manually checked in Dodo test mode; a checkout can be rejected after verification if the amount differs from INR 299. Production legal and refund policy pages are also pending.
+**Current limitations:** A lost browser checkout cookie can be replaced with the email-recovery flow when a valid purchase is indexed and Resend email delivery is configured; the recovery flow has not yet been tested against live email delivery. Underlying astrology APIs, Dodo API and webhook events could not be exercised without merchant-owned secrets. Taxes, localized pricing and real checkout UI must be manually checked in Dodo test mode; a checkout can be rejected after verification if the amount differs from INR 299. Production legal/refund pages exist, but merchant/operator details and final policy review are required before live sales.
 
 ## Phase 6 — account-free email report recovery, legal and Hindi report
 
