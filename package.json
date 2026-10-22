@@ -8,7 +8,8 @@
     "start": "next start",
     "typecheck": "tsc --noEmit",
     "test": "tsx --test tests/*.test.ts",
-    "preflight": "node --env-file-if-exists=.env.local scripts/preflight.mjs"
+    "preflight": "node --env-file-if-exists=.env.local scripts/preflight.mjs",
+    "verify:live": "node --env-file-if-exists=.env.local scripts/verify-live.mjs"
   },
   "dependencies": {
     "next": "^15.5.0",
